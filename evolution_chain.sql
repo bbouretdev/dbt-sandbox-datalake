@@ -1,0 +1,1 @@
+SELECT * FROM {{ ref('evolution_chain_flat') }}

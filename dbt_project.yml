@@ -1,0 +1,44 @@
+
+# Name your project! Project names should contain only lowercase characters
+# and underscores. A good package name should reflect your organization's
+# name or the intended use of these models
+name: 'sandbox_datalake'
+version: '1.0.0'
+
+# This setting configures which "profile" dbt uses for this project.
+profile: 'sandbox_datalake'
+
+# These configurations specify where dbt should look for different types of files.
+# The `model-paths` config, for example, states that models in this project can be
+# found in the "models/" directory. You probably won't need to change these!
+model-paths: ["models"]
+analysis-paths: ["analyses"]
+test-paths: ["tests"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+snapshot-paths: ["snapshots"]
+
+clean-targets:         # directories to be removed by `dbt clean`
+  - "target"
+  - "dbt_packages"
+
+
+# Configuring models
+# Full documentation: https://docs.getdbt.com/docs/configuring-models
+
+models:
+  sandbox_datalake:
+    bronze_to_silver:
+      pokemon:
+        final:
+          +materialized: table
+          +post-hook: 
+            - "{% if this.name.startswith('showdown_dav') %} COPY {{ this }} TO 's3://sandbox-datalake-silver/pokemon/showdown/dav/{{ this.name }}.parquet' (FORMAT PARQUET, COMPRESSION 'snappy') {% endif %}"
+            - "{% if this.name.startswith('showdown_smogon') %} COPY {{ this }} TO 's3://sandbox-datalake-silver/pokemon/showdown/smogon/{{ this.name }}.parquet' (FORMAT PARQUET, COMPRESSION 'snappy') {% endif %}"
+            - "{% if this.name.startswith('pokeapi') %} COPY {{ this }} TO 's3://sandbox-datalake-silver/pokemon/pokeapi/{{ this.name }}.parquet' (FORMAT PARQUET, COMPRESSION 'snappy') {% endif %}"
+    silver_to_gold:
+      pokemon:
+        showdown:
+          +materialized: table
+          +post-hook:
+            - "{% if this.name.startswith('diff_dav_smogon') %} COPY {{ this }} TO 's3://sandbox-datalake-gold/pokemon/showdown/diff_dav_smogon/{{ this.name }}.parquet' (FORMAT PARQUET, COMPRESSION 'snappy') {% endif %}"

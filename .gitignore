@@ -1,0 +1,25 @@
+
+dbt_packages/
+logs/
+
+# Ignorer l'environnement virtuel
+venv/
+env/
+
+# Fichiers de compilation dbt
+target/
+dbt_modules/
+
+# Fichiers de configuration locaux
+*.dbt/
+
+# Ignorer les fichiers .pyc générés
+*.pyc
+
+# Ignorer les fichiers de configuration IDE
+.idea/
+.vscode/
+
+# Fichiers de résultats de tests
+*.csv
+*.xls
