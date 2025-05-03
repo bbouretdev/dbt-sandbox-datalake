@@ -42,3 +42,4 @@ models:
           +materialized: table
           +post-hook:
             - "{% if this.name.startswith('diff_dav_smogon') %} COPY {{ this }} TO 's3://sandbox-datalake-gold/pokemon/showdown/diff_dav_smogon/{{ this.name }}.parquet' (FORMAT PARQUET, COMPRESSION 'snappy') {% endif %}"
+            - "{% if this.name.startswith('dav') %} COPY {{ this }} TO 's3://sandbox-datalake-gold/pokemon/showdown/dav/{{ this.name }}.parquet' (FORMAT PARQUET, COMPRESSION 'snappy') {% endif %}"
