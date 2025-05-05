@@ -39,7 +39,13 @@ models:
     silver_to_gold:
       pokemon:
         showdown:
-          +materialized: table
-          +post-hook:
-            - "{% if this.name.startswith('diff_dav_smogon') %} COPY {{ this }} TO 's3://sandbox-datalake-gold/pokemon/showdown/diff_dav_smogon/{{ this.name }}.parquet' (FORMAT PARQUET, COMPRESSION 'snappy') {% endif %}"
-            - "{% if this.name.startswith('dav') %} COPY {{ this }} TO 's3://sandbox-datalake-gold/pokemon/showdown/dav/{{ this.name }}.parquet' (FORMAT PARQUET, COMPRESSION 'snappy') {% endif %}"
+          final:
+            dav:
+              +post-hook:
+                - "COPY {{ this }} TO 's3://sandbox-datalake-gold/pokemon/showdown/dav/{{ this.name }}.parquet' (FORMAT PARQUET, COMPRESSION 'snappy')"
+            diff_dav_smogon:
+              +post-hook:
+                - "COPY {{ this }} TO 's3://sandbox-datalake-gold/pokemon/showdown/diff_dav_smogon/{{ this.name }}.parquet' (FORMAT PARQUET, COMPRESSION 'snappy')"
+            smogon:
+              +post-hook:
+                - "COPY {{ this }} TO 's3://sandbox-datalake-gold/pokemon/showdown/smogon/{{ this.name }}.parquet' (FORMAT PARQUET, COMPRESSION 'snappy')"
