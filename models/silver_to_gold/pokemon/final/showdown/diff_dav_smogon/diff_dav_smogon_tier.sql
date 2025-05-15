@@ -1,0 +1,30 @@
+{{ config(materialized = 'table') }}
+
+{% set release_version = var('release_version') %}
+
+WITH dav AS (
+    SELECT *
+    FROM read_parquet('s3://sandbox-datalake-silver/pokemon/showdown/dav/{{ release_version }}/tier.parquet')
+),
+smogon AS (
+    SELECT *
+    FROM read_parquet('s3://sandbox-datalake-silver/pokemon/showdown/smogon/{{ release_version }}/tier.parquet')
+),
+diffs AS (
+    SELECT
+        dav.key,
+        CASE 
+            WHEN dav.tier IS DISTINCT FROM smogon.tier THEN dav.tier 
+            ELSE NULL 
+        END AS tier_new,
+        CASE 
+            WHEN dav.tier IS DISTINCT FROM smogon.tier THEN smogon.tier 
+            ELSE NULL 
+        END AS tier_old
+    FROM dav
+    LEFT JOIN smogon ON dav.key = smogon.key
+)
+
+SELECT *
+FROM diffs
+WHERE tier_new IS NOT NULL OR tier_old IS NOT NULL

@@ -22,30 +22,50 @@ clean-targets:         # directories to be removed by `dbt clean`
   - "target"
   - "dbt_packages"
 
-
-# Configuring models
-# Full documentation: https://docs.getdbt.com/docs/configuring-models
-
 models:
   sandbox_datalake:
     bronze_to_silver:
       pokemon:
         final:
-          +materialized: table
-          +post-hook: 
-            - "{% if this.name.startswith('showdown_dav') %} COPY {{ this }} TO 's3://sandbox-datalake-silver/pokemon/showdown/dav/{{ this.name }}.parquet' (FORMAT PARQUET, COMPRESSION 'snappy') {% endif %}"
-            - "{% if this.name.startswith('showdown_smogon') %} COPY {{ this }} TO 's3://sandbox-datalake-silver/pokemon/showdown/smogon/{{ this.name }}.parquet' (FORMAT PARQUET, COMPRESSION 'snappy') {% endif %}"
-            - "{% if this.name.startswith('pokeapi') %} COPY {{ this }} TO 's3://sandbox-datalake-silver/pokemon/pokeapi/{{ this.name }}.parquet' (FORMAT PARQUET, COMPRESSION 'snappy') {% endif %}"
+          showdown:
+            sources:
+              +pre-hook:
+                - >
+                  {% set source = var('source') %}
+                  {% set allowed_sources = ['dav', 'smogon'] %}
+                  {% if source not in allowed_sources %}
+                    {{ exceptions.raise_compiler_error("Invalid value for 'source': " ~ source ~ ". Allowed values: " ~ allowed_sources) }}
+                  {% endif %}
+              +post-hook:
+                - >
+                  {% set version = var('release_version') %}
+                  {% set source = var('source') %}
+                  COPY {{ this }}
+                  TO 's3://sandbox-datalake-silver/pokemon/showdown/{{ source }}/{{ version }}/{{ this.name }}.parquet'
+                  (FORMAT PARQUET, COMPRESSION 'snappy')
     silver_to_gold:
       pokemon:
-        showdown:
-          final:
-            dav:
+        final:
+          showdown:
+            sources:
+              +pre-hook:
+                - >
+                  {% set source = var('source') %}
+                  {% set allowed_sources = ['dav', 'smogon'] %}
+                  {% if source not in allowed_sources %}
+                    {{ exceptions.raise_compiler_error("Invalid value for 'source': " ~ source ~ ". Allowed values: " ~ allowed_sources) }}
+                  {% endif %}
               +post-hook:
-                - "COPY {{ this }} TO 's3://sandbox-datalake-gold/pokemon/showdown/dav/{{ this.name }}.parquet' (FORMAT PARQUET, COMPRESSION 'snappy')"
+                - >
+                  {% set version = var('release_version') %}
+                  {% set source = var('source') %}
+                  COPY {{ this }}
+                  TO 's3://sandbox-datalake-gold/pokemon/showdown/{{ source }}/{{ version }}/{{ this.name }}.parquet'
+                  (FORMAT PARQUET, COMPRESSION 'snappy')
             diff_dav_smogon:
               +post-hook:
-                - "COPY {{ this }} TO 's3://sandbox-datalake-gold/pokemon/showdown/diff_dav_smogon/{{ this.name }}.parquet' (FORMAT PARQUET, COMPRESSION 'snappy')"
-            smogon:
-              +post-hook:
-                - "COPY {{ this }} TO 's3://sandbox-datalake-gold/pokemon/showdown/smogon/{{ this.name }}.parquet' (FORMAT PARQUET, COMPRESSION 'snappy')"
+                - >
+                  {% set version = var('release_version') %}
+                  COPY {{ this }}
+                  TO 's3://sandbox-datalake-gold/pokemon/showdown/diff_dav_smogon/{{ version }}/{{ this.name }}.parquet'
+                  (FORMAT PARQUET, COMPRESSION 'snappy')
