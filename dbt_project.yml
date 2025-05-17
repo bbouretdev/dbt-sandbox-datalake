@@ -31,18 +31,27 @@ models:
             sources:
               +pre-hook:
                 - >
-                  {% set source = var('source') %}
+                  {% set source = var('source', 'dav') %}
                   {% set allowed_sources = ['dav', 'smogon'] %}
                   {% if source not in allowed_sources %}
                     {{ exceptions.raise_compiler_error("Invalid value for 'source': " ~ source ~ ". Allowed values: " ~ allowed_sources) }}
                   {% endif %}
               +post-hook:
                 - >
-                  {% set version = var('release_version') %}
-                  {% set source = var('source') %}
+                  {% set version = var('release_version', '-1') %}
+                  {% set source = var('source', 'dav') %}
                   COPY {{ this }}
                   TO 's3://sandbox-datalake-silver/pokemon/showdown/{{ source }}/{{ version }}/{{ this.name }}.parquet'
                   (FORMAT PARQUET, COMPRESSION 'snappy')
+      davlab:
+        final:
+          notion:
+            +post-hook:
+              - >
+                {% set notion_date = var('notion_date', '-1') %}
+                COPY {{ this }}
+                TO 's3://sandbox-datalake-silver/davlab/notion/{{ notion_date }}/{{ this.name }}.parquet'
+                (FORMAT PARQUET, COMPRESSION 'snappy')
     silver_to_gold:
       pokemon:
         final:
@@ -50,22 +59,31 @@ models:
             sources:
               +pre-hook:
                 - >
-                  {% set source = var('source') %}
+                  {% set source = var('source', 'dav') %}
                   {% set allowed_sources = ['dav', 'smogon'] %}
                   {% if source not in allowed_sources %}
                     {{ exceptions.raise_compiler_error("Invalid value for 'source': " ~ source ~ ". Allowed values: " ~ allowed_sources) }}
                   {% endif %}
               +post-hook:
                 - >
-                  {% set version = var('release_version') %}
-                  {% set source = var('source') %}
+                  {% set version = var('release_version', '-1') %}
+                  {% set source = var('source', 'dav') %}
                   COPY {{ this }}
                   TO 's3://sandbox-datalake-gold/pokemon/showdown/{{ source }}/{{ version }}/{{ this.name }}.parquet'
                   (FORMAT PARQUET, COMPRESSION 'snappy')
             diff_dav_smogon:
               +post-hook:
                 - >
-                  {% set version = var('release_version') %}
+                  {% set version = var('release_version', '-1') %}
                   COPY {{ this }}
                   TO 's3://sandbox-datalake-gold/pokemon/showdown/diff_dav_smogon/{{ version }}/{{ this.name }}.parquet'
                   (FORMAT PARQUET, COMPRESSION 'snappy')
+      davlab:
+        final:
+          notion:
+            +post-hook:
+              - >
+                {% set notion_date = var('notion_date', '-1') %}
+                COPY {{ this }}
+                TO 's3://sandbox-datalake-gold/davlab/notion/{{ notion_date }}/{{ this.name }}.parquet'
+                (FORMAT PARQUET, COMPRESSION 'snappy')
