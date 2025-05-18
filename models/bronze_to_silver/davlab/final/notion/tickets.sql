@@ -14,7 +14,7 @@ with source_data as (
 exploded as (
 
   select
-    json_extract(results_elem, '$.id')::uuid as id,
+    json_extract(results_elem, '$.id')::VARCHAR as ticket_id,
     json_extract_string(results_elem, '$.created_time') as created_time,
     json_extract_string(results_elem, '$.last_edited_time') as last_edited_time,
 
@@ -22,9 +22,9 @@ exploded as (
 
     -- Simple fields
     json_extract_string(results_elem, '$.properties.État.status.name') as status,
-    json_extract_string(results_elem, '$.properties.Chemin.relation[0].id')::uuid as path_id,
-    json_extract_string(results_elem, '$.properties.Sprint.relation[0].id')::uuid as sprint_id,
-    json_extract_string(results_elem, '$.properties.Projet.relation[0].id')::uuid as project_id,
+    json_extract_string(results_elem, '$.properties.Chemin.relation[0].id')::VARCHAR as path_id,
+    json_extract_string(results_elem, '$.properties.Sprint.relation[0].id')::VARCHAR as sprint_id,
+    json_extract_string(results_elem, '$.properties.Projet.relation[0].id')::VARCHAR as project_id,
 
     -- Calculated / rollup fields
     json_extract(results_elem, '$.properties.Sprint actuel.rollup.array[0].formula.boolean')::boolean as current_sprint,
@@ -35,7 +35,7 @@ exploded as (
     -- ID and Points
     json_extract_string(results_elem, '$.properties.ID.unique_id.prefix') as ticket_prefix,
     json_extract(results_elem, '$.properties.ID.unique_id.number')::int as ticket_number,
-    json_extract_string(results_elem, '$.properties.Points.relation[0].id')::uuid as point_id,
+    json_extract_string(results_elem, '$.properties.Points.relation[0].id')::VARCHAR as point_id,
 
     -- Assignment, tags, criticality
     json_extract_string(results_elem, '$.properties.Attribué à.people[0].name') as assignee,

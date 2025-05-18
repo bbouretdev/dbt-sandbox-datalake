@@ -7,7 +7,7 @@ with tickets as (
 
 sprints as (
   select
-    id as sprint_id,
+    sprint_id,
     name,
     period_start,
     period_end,

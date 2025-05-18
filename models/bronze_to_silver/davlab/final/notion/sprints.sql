@@ -14,7 +14,7 @@ with source_data as (
 exploded as (
 
   select
-    json_extract(results_elem, '$.id')::uuid as id,
+    json_extract(results_elem, '$.id')::VARCHAR as sprint_id,
     json_extract_string(results_elem, '$.created_time') as created_time,
     json_extract_string(results_elem, '$.last_edited_time') as last_edited_time,
 
