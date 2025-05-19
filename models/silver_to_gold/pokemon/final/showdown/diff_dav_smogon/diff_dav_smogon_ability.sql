@@ -12,7 +12,7 @@ WITH dav AS (
 ),
 smogon AS (
     SELECT *
-    FROM read_parquet('s3://sandbox-datalake-silver/pokemon/showdown/smogon/{{ release_version }}/ability.parquet')
+    FROM read_parquet('s3://sandbox-datalake-silver/pokemon/showdown/smogon/ability.parquet')
 ),
 diffs AS (
     SELECT

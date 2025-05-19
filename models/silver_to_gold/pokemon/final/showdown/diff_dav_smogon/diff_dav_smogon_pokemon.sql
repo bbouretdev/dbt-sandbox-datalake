@@ -16,7 +16,7 @@ WITH dav AS (
 ),
 smogon AS (
     SELECT *
-    FROM read_parquet('s3://sandbox-datalake-silver/pokemon/showdown/smogon/{{ release_version }}/pokemon.parquet')
+    FROM read_parquet('s3://sandbox-datalake-silver/pokemon/showdown/smogon/pokemon.parquet')
 ),
 diffs AS (
     SELECT

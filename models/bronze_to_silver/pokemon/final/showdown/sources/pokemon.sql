@@ -1,7 +1,13 @@
 {{ config(materialized = 'table') }}
 
 {% set release_version = var('release_version') %}
-{% set source = var('source') %}
+{% set source = var('source', 'dav') %}
+
+{% if source == 'dav' %}
+    {% set input_path = 's3://sandbox-datalake-bronze/pokemon/showdown/dav/' ~ release_version ~ '/pokemon.json' %}
+{% elif source == 'smogon' %}
+    {% set input_path = 's3://sandbox-datalake-bronze/pokemon/showdown/smogon/pokemon.json' %}
+{% endif %}
 
 SELECT
     key AS key,
@@ -57,7 +63,7 @@ SELECT
     forceTeraType AS force_tera_type
 
 FROM read_json_auto(
-    's3://sandbox-datalake-bronze/pokemon/showdown/{{ source }}/{{ release_version }}/pokemon.json',
+    '{{ input_path }}',
     columns = {
         'key': 'VARCHAR',
         'num': 'BIGINT',

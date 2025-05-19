@@ -40,9 +40,15 @@ models:
                 - >
                   {% set version = var('release_version', '-1') %}
                   {% set source = var('source', 'dav') %}
+                  {% if source == 'dav' %}
                   COPY {{ this }}
-                  TO 's3://sandbox-datalake-silver/pokemon/showdown/{{ source }}/{{ version }}/{{ this.name }}.parquet'
-                  (FORMAT PARQUET, COMPRESSION 'snappy')
+                  TO 's3://sandbox-datalake-silver/pokemon/showdown/dav/{{ version }}/{{ this.name }}.parquet'
+                  (FORMAT PARQUET, COMPRESSION 'snappy');
+                  {% elif source == 'smogon' %}
+                  COPY {{ this }}
+                  TO 's3://sandbox-datalake-silver/pokemon/showdown/smogon/{{ this.name }}.parquet'
+                  (FORMAT PARQUET, COMPRESSION 'snappy');
+                  {% endif %}
       davlab:
         final:
           notion:
@@ -68,9 +74,15 @@ models:
                 - >
                   {% set version = var('release_version', '-1') %}
                   {% set source = var('source', 'dav') %}
+                  {% if source == 'dav' %}
                   COPY {{ this }}
-                  TO 's3://sandbox-datalake-gold/pokemon/showdown/{{ source }}/{{ version }}/{{ this.name }}.parquet'
-                  (FORMAT PARQUET, COMPRESSION 'snappy')
+                  TO 's3://sandbox-datalake-gold/pokemon/showdown/dav/{{ version }}/{{ this.name }}.parquet'
+                  (FORMAT PARQUET, COMPRESSION 'snappy');
+                  {% elif source == 'smogon' %}
+                  COPY {{ this }}
+                  TO 's3://sandbox-datalake-gold/pokemon/showdown/smogon/{{ this.name }}.parquet'
+                  (FORMAT PARQUET, COMPRESSION 'snappy');
+                  {% endif %}
             diff_dav_smogon:
               +post-hook:
                 - >

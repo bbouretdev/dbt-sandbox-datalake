@@ -1,7 +1,13 @@
 {{ config(materialized = 'table') }}
 
 {% set release_version = var('release_version') %}
-{% set source = var('source') %}
+{% set source = var('source', 'dav') %}
+
+{% if source == 'dav' %}
+    {% set input_path = 's3://sandbox-datalake-bronze/pokemon/showdown/dav/' ~ release_version ~ '/move.json' %}
+{% elif source == 'smogon' %}
+    {% set input_path = 's3://sandbox-datalake-bronze/pokemon/showdown/smogon/move.json' %}
+{% endif %}
 
 SELECT
     key AS key,
@@ -62,7 +68,7 @@ SELECT
     struggleRecoil AS struggle_recoil
 
 FROM read_json_auto(
-    's3://sandbox-datalake-bronze/pokemon/showdown/{{ source }}/{{ release_version }}/move.json',
+    '{{ input_path }}',
     columns = {
         'key': 'VARCHAR',
         'num': 'BIGINT',

@@ -1,7 +1,13 @@
 {{ config(materialized = 'table') }}
 
 {% set release_version = var('release_version') %}
-{% set source = var('source') %}
+{% set source = var('source', 'dav') %}
+
+{% if source == 'dav' %}
+    {% set input_path = 's3://sandbox-datalake-bronze/pokemon/showdown/dav/' ~ release_version ~ '/ability.json' %}
+{% elif source == 'smogon' %}
+    {% set input_path = 's3://sandbox-datalake-bronze/pokemon/showdown/smogon/ability.json' %}
+{% endif %}
 
 SELECT
     key AS key,
@@ -50,7 +56,7 @@ SELECT
     onHitPriority AS on_hit_priority,
     onFoeBeforeMovePriority AS on_foe_before_move_priority
 FROM read_json_auto(
-    's3://sandbox-datalake-bronze/pokemon/showdown/{{ source }}/{{ release_version }}/ability.json',
+    '{{ input_path }}',
     columns = {
         'key': 'VARCHAR',
         'isNonstandard': 'VARCHAR',

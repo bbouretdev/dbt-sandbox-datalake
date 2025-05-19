@@ -8,7 +8,7 @@ WITH dav_learnset AS (
 ),
 smogon_learnset AS (
     SELECT pokemon_id, move_id
-    FROM read_parquet('s3://sandbox-datalake-silver/pokemon/showdown/smogon/{{ release_version }}/learnset.parquet')
+    FROM read_parquet('s3://sandbox-datalake-silver/pokemon/showdown/smogon/learnset.parquet')
 ),
 
 -- Calcul des moves ajoutés (présents dans dav mais pas dans smogon)

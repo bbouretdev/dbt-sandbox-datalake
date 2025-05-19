@@ -11,7 +11,7 @@ WITH dav AS (
     SELECT * FROM read_parquet('s3://sandbox-datalake-silver/pokemon/showdown/dav/{{ release_version }}/move.parquet')
 ),
 smogon AS (
-    SELECT * FROM read_parquet('s3://sandbox-datalake-silver/pokemon/showdown/smogon/{{ release_version }}/move.parquet')
+    SELECT * FROM read_parquet('s3://sandbox-datalake-silver/pokemon/showdown/smogon/move.parquet')
 )
 
 SELECT

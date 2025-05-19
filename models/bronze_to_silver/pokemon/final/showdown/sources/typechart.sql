@@ -1,7 +1,13 @@
 {{ config(materialized = 'table') }}
 
 {% set release_version = var('release_version') %}
-{% set source = var('source') %}
+{% set source = var('source', 'dav') %}
+
+{% if source == 'dav' %}
+    {% set input_path = 's3://sandbox-datalake-bronze/pokemon/showdown/dav/' ~ release_version ~ '/typechart.json' %}
+{% elif source == 'smogon' %}
+    {% set input_path = 's3://sandbox-datalake-bronze/pokemon/showdown/smogon/typechart.json' %}
+{% endif %}
 
 {% set damage_types = [
     "Bug", "Dark", "Dragon", "Electric", "Fairy", "Fighting", "Fire", "Flying", "Ghost",
@@ -18,7 +24,7 @@
 WITH raw_json AS (
     SELECT *
     FROM read_json_auto(
-        's3://sandbox-datalake-bronze/pokemon/showdown/{{ source }}/{{ release_version }}/typechart.json',
+        '{{ input_path }}',
         columns = {
             'key': 'VARCHAR',
             'damageTaken': 'STRUCT(Bug BIGINT, Dark BIGINT, Dragon BIGINT, Electric BIGINT, Fairy BIGINT, Fighting BIGINT, Fire BIGINT, Flying BIGINT, Ghost BIGINT, Grass BIGINT, Ground BIGINT, Ice BIGINT, Normal BIGINT, Poison BIGINT, Psychic BIGINT, Rock BIGINT, Steel BIGINT, Stellar BIGINT, Water BIGINT, prankster BIGINT, par BIGINT, brn BIGINT, trapped BIGINT, powder BIGINT, sandstorm BIGINT, hail BIGINT, frz BIGINT, psn BIGINT, tox BIGINT)',
