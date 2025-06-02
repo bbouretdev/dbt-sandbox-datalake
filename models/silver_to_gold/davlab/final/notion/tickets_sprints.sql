@@ -1,5 +1,3 @@
-{{ config(materialized = 'table') }}
-
 with tickets as (
   select *
   from {{ ref('tickets') }}

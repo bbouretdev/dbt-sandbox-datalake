@@ -1,5 +1,3 @@
-{{ config(materialized = 'table') }}
-
 {% set notion_date = var('notion_date') %}
 
 with source_data as (

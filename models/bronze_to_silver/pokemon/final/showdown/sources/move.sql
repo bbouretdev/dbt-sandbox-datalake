@@ -1,5 +1,3 @@
-{{ config(materialized = 'table') }}
-
 {% set release_version = var('release_version') %}
 {% set source = var('source', 'dav') %}
 
