@@ -1,5 +1,5 @@
-{% set release_version_old = var('release_version_old') %}
-{% set release_version_new = var('release_version_new') %}
+{% set release_version_new = var('release_version') | int %}
+{% set release_version_old = release_version_new - 1 %}
 
 WITH dav_new AS (
     SELECT *

@@ -112,27 +112,38 @@ models:
                     TO 's3://sandbox-datalake-gold/pokemon/showdown/smogon/{{ this.name }}.parquet'
                     (FORMAT PARQUET, COMPRESSION 'snappy');
                   {% endif %}
-            diff_dav_releases:
+            diff_dav_previous_release:
               +post-hook:
                 - >
-                  {% set version_old = var('release_version_old', '-1') %}
-                  {% set version_new = var('release_version_new', '-1') %}
+                  {% set version = var('release_version', '-1') %}
+                  {% set is_latest = var('is_latest', 'no') %}
                   COPY {{ this }}
-                  TO 's3://sandbox-datalake-gold/pokemon/showdown/diff_dav_releases/{{ version_old }}_{{ version_new }}_{{ this.name }}.parquet'
-                  (FORMAT PARQUET, COMPRESSION 'snappy')
+                  TO 's3://sandbox-datalake-gold/pokemon/showdown/dav/{{ version }}/{{ this.name }}.parquet'
+                  (FORMAT PARQUET, COMPRESSION 'snappy');
+                  {% if is_latest == 'yes' %}
+                    COPY {{ this }}
+                    TO 's3://sandbox-datalake-gold/pokemon/showdown/dav/latest/{{ this.name }}.parquet'
+                    (FORMAT PARQUET, COMPRESSION 'snappy');
+                  {% endif %}
             diff_dav_smogon:
               +post-hook:
                 - >
                   {% set version = var('release_version', '-1') %}
+                  {% set is_latest = var('is_latest', 'no') %}
                   COPY {{ this }}
-                  TO 's3://sandbox-datalake-gold/pokemon/showdown/diff_dav_smogon/{{ version }}/{{ this.name }}.parquet'
-                  (FORMAT PARQUET, COMPRESSION 'snappy')
+                  TO 's3://sandbox-datalake-gold/pokemon/showdown/dav/{{ version }}/{{ this.name }}.parquet'
+                  (FORMAT PARQUET, COMPRESSION 'snappy');
+                  {% if is_latest == 'yes' %}
+                    COPY {{ this }}
+                    TO 's3://sandbox-datalake-gold/pokemon/showdown/dav/latest/{{ this.name }}.parquet'
+                    (FORMAT PARQUET, COMPRESSION 'snappy');
+                  {% endif %}
             battlelogs:
               +post-hook:
                 - >
                   COPY {{ this }}
                   TO 's3://sandbox-datalake-gold/pokemon/showdown/battlelogs/{{ this.name }}.parquet'
-                  (FORMAT PARQUET, COMPRESSION 'snappy')
+                  (FORMAT PARQUET, COMPRESSION 'snappy');
       davlab:
         final:
           +materialized: table
@@ -142,4 +153,4 @@ models:
                 {% set notion_date = var('notion_date', '-1') %}
                 COPY {{ this }}
                 TO 's3://sandbox-datalake-gold/davlab/notion/{{ notion_date }}/{{ this.name }}.parquet'
-                (FORMAT PARQUET, COMPRESSION 'snappy')
+                (FORMAT PARQUET, COMPRESSION 'snappy');

@@ -1,16 +1,17 @@
-{% set release_version_old = var('release_version_old') %}
-{% set release_version_new = var('release_version_new') %}
+{% set release_version_new = var('release_version') | int %}
+{% set release_version_old = release_version_new - 1 %}
 
 {% set columns = [
-    'num', 'name', 'type', 'base_power', 'accuracy', 'pp', 'priority', 'category',
-    'flags', 'is_nonstandard', 'short_description', 'description'
+    'name', 'num', 'gen', 'is_nonstandard', 'is_berry', 'is_gem', 'is_pokeball', 
+    'description', 'short_description', 'on_drive', 'mega_stone', 'mega_evolves', 
+    'z_move', 'z_move_type', 'z_move_from', 'item_user'
 ] %}
 
 WITH dav_new AS (
-    SELECT * FROM read_parquet('s3://sandbox-datalake-silver/pokemon/showdown/dav/{{ release_version_new }}/move.parquet')
+    SELECT * FROM read_parquet('s3://sandbox-datalake-silver/pokemon/showdown/dav/{{ release_version_new }}/item.parquet')
 ),
 dav_old AS (
-    SELECT * FROM read_parquet('s3://sandbox-datalake-silver/pokemon/showdown/dav/{{ release_version_old }}/move.parquet')
+    SELECT * FROM read_parquet('s3://sandbox-datalake-silver/pokemon/showdown/dav/{{ release_version_old }}/item.parquet')
 )
 
 SELECT
@@ -26,7 +27,7 @@ SELECT
     END AS {{ col }}_old
     {%- if not loop.last %},{% endif %}
     {% endfor %}
-    
+
 FROM dav_new
 LEFT JOIN dav_old ON dav_new.key = dav_old.key
 WHERE
